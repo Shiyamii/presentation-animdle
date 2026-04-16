@@ -75,8 +75,8 @@ layout: center
   <div class="text-lg opacity-60 mt-3">Démonstration de l'application en direct</div>
   <div class="mt-8 flex justify-center gap-4 flex-wrap">
     <span class="tag">Mode Daily</span>
-    <span class="tag">Mode Endless</span>
     <span class="tag">Mode Character</span>
+    <span class="tag">Mode(s) Endless</span>
     <span class="tag">Mode Challenge</span>
   </div>
 </div>
@@ -99,18 +99,24 @@ layout: two-cols-header
 ---
 
 # Stack Technique
+### En commun
+
+<div class="grid grid-cols-2 gap-2 mb-12">
+  <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag tag-orange">Bun</span></span> Runtime JS performant</div>
+  <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag tag-orange">BetterAuth</span></span> Auth email/password</div>
+  <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag tag-orange">Biome</span></span> Formatage et de linting</div>
+  <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag tag-orange">Husky</span></span> Outil de gestion de hooks Git</div>
+</div>
 
 ::left::
 
 ### Frontend
 
 <div class="mt-3 space-y-2">
-  <div class="flex items-center gap-2"><span class="tag">React 19</span> Composants & hooks</div>
-  <div class="flex items-center gap-2"><span class="tag">Vite</span> Build ultra-rapide</div>
-  <div class="flex items-center gap-2"><span class="tag">Tailwind v4</span> Styling utility-first</div>
-  <div class="flex items-center gap-2"><span class="tag">React Router v7</span> Routing SPA</div>
-  <div class="flex items-center gap-2"><span class="tag">Zustand</span> State management léger</div>
-  <div class="flex items-center gap-2"><span class="tag">shadcn/ui</span> Composants UI</div>
+  <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag">React (router & i18n)</span></span> Bibliothèque front-end</div>
+  <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag">Zustand</span></span> State management léger</div>
+  <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag">ShadeCN & TweakCN</span></span> Composants UI</div>
+  <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag">Tailwind v4</span></span> Styling utility-first</div>
 </div>
 
 ::right::
@@ -118,13 +124,12 @@ layout: two-cols-header
 ### Backend
 
 <div class="mt-3 space-y-2">
-  <div class="flex items-center gap-2"><span class="tag tag-blue">Hono</span> Framework HTTP typé</div>
-  <div class="flex items-center gap-2"><span class="tag tag-blue">Bun</span> Runtime JS performant</div>
-  <div class="flex items-center gap-2"><span class="tag tag-blue">MongoDB</span> Base de données NoSQL</div>
-  <div class="flex items-center gap-2"><span class="tag tag-blue">better-auth</span> Auth email/password</div>
-  <div class="flex items-center gap-2"><span class="tag tag-blue">WebSocket</span> Multijoueur temps réel</div>
-  <div class="flex items-center gap-2"><span class="tag tag-blue">Docker + Nginx</span> Déploiement</div>
+  <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag tag-blue">Hono</span></span> Framework HTTP typé</div>
+  <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag tag-blue">Mongoose</span></span> ODM pour MongoDB</div>
+  <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag tag-blue">BetterAuth</span></span> Auth email/password</div>
+  <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag tag-blue">node-cron</span></span> Planification de tâches</div>
 </div>
+
 
 <!--
 Justifier Bun + Hono: performance native, TypeScript first-class, API Web standards.
@@ -167,24 +172,26 @@ Architecture **Model-View-ViewModel** appliquée à React
 ```
 src/
 ├── pages/
-│   ├── home/
-│   │   ├── HomePageView.tsx      ← View
-│   │   └── useHomePageViewModel  ← ViewModel
+│   ├── challenge/
 │   ├── daily/
-│   │   └── DailyGuessingPage.tsx
-│   ├── endless/
-│   │   ├── EndlessModePage.tsx
-│   │   └── useEndlessViewModel.ts
-│   └── challenge/
-│       └── ChallengePage.tsx
-├── components/
+│   ...
+│   └── home/
+│       ├── HomePageView.tsx      ← View
+│       └── useHomePageViewModel  ← ViewModel
+│   
+├── components/       ← Composants réutilisables (View)
 │   ├── GuessTable.tsx
 │   └── AutoComplete.tsx
 ├── stores/              ← Model
+│   ...
 │   ├── animeStore.ts
-│   ├── challengeStore.ts
-│   └── userStore.ts
-└── lib/
+│   └── userStore.ts 
+├── i18n/               ← Internationalisation
+├── hooks/              ← custom hooks
+│   ...
+└── lib/                ← Librairies & utilitaires
+    ...
+    ├── auth-client.ts
     ├── ws-client.ts
     └── guessing-utils.ts
 ```
@@ -229,7 +236,11 @@ Séparation en couches : **Routes → Services → Repositories**
 ::right::
 
 ```
-backend/src/
+src/
+├── libs/                 ← Librairies & utilitaires
+│   ├── auth.ts
+│   ├── db.ts
+│   └── dotenv-loader.ts
 ├── routes/
 │   ├── anime.ts        GET, guess, daily
 │   ├── auth.ts         Login / Register
@@ -252,57 +263,63 @@ backend/src/
 
 # Modèle de Données
 
-Collections MongoDB
+MongoDB (Mongoose) — **2 types de collections**
 
-```mermaid {scale: 0.72}
+- **Référentiel (catalogue)**: `animes`, `characters`
+- **Daily + stats (historique)**: `current_animes`, `current_characters`  
+  (le “courant” = le document le plus récent, trié par `date`)
+
+```mermaid {scale: 0.55}
 erDiagram
-    Anime {
-        ObjectId _id
-        string title
-        string[] genres
-        string type
-        int episodes
-        string status
-        int year
-        string studio
-        string imageUrl
-    }
-    Character {
-        ObjectId _id
-        string name
-        string anime
-        string gender
-        string hairColor
-        string eyeColor
-        boolean isMainChar
-        string imageUrl
-    }
-    CurrentAnime {
-        ObjectId _id
-        ObjectId animeId
-        date setAt
-    }
-    CurrentCharacter {
-        ObjectId _id
-        ObjectId characterId
-        date setAt
-    }
-    Room {
-        ObjectId _id
-        string code
-        string status
-        ObjectId animeId
-        string[] players
-        date createdAt
-    }
-    CurrentAnime ||--|| Anime : "anime du jour"
-    CurrentCharacter ||--|| Character : "perso du jour"
-    Room ||--|| Anime : "utilise"
+  CURRENT_ANIMES {
+    ObjectId _id
+    object   anime
+    date     date
+    mixed    guesses
+    int      totalWins
+    mixed    winDistribution
+  }
+  
+  ANIMES {
+    ObjectId _id
+    mixed    images_webp
+    string   anime_format
+    string[] genres
+    object[] titles
+    string   demographic_type
+    int      episodes
+    string   season_start
+    string   studio
+    string   source
+    float    score
+    boolean  enabled
+  }
+
+  CHARACTERS {
+    ObjectId _id
+    mixed    images_webp
+    string   name
+    string   anime_id
+    object[] anime_titles
+    string[] anime_genres
+    string   demographic_type
+  }
+
+  CURRENT_CHARACTERS {
+    ObjectId _id
+    object   character
+    date     date
+    mixed    guesses
+    int      totalWins
+    mixed    winDistribution
+  }
+
 ```
 
 <!--
-CurrentAnime et CurrentCharacter sont des singletons en BDD — mis à jour par le cron minuit.
-Room référence l'anime en cours pour le mode challenge.
+- "current_*" n'est pas juste un ID: on stocke une COPIE de l'entité (anime/character) + des stats.
+- Les stats: guesses = compteur par id (clé dynamique), totalWins + winDistribution (par nombre d'essais).
+- Le cron (minuit UTC) insère un nouveau doc dans current_* ; le "courant" = le plus récent.
 -->
 
 ---
