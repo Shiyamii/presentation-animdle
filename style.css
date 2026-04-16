@@ -1,0 +1,80 @@
+/* Animdle — custom theme colors */
+:root {
+  --slidev-theme-primary: oklch(0.78 0.2 5);
+  --slidev-theme-secondary: #8BAFD4;
+}
+
+.slidev-layout {
+  background-color: #1A1B2E;
+  color: #EDE9E5;
+}
+
+.slidev-layout h1 {
+  color: var(--slidev-theme-primary);
+}
+
+.slidev-layout h2 {
+  color: var(--slidev-theme-primary);
+}
+
+.slidev-layout.cover h1,
+.slidev-layout.section h1 {
+  color: var(--slidev-theme-primary);
+}
+
+/* Tables */
+.slidev-layout table th {
+  background-color: rgba(240, 112, 96, 0.15);
+  color: var(--slidev-theme-primary);
+}
+
+.slidev-layout table tr:nth-child(even) {
+  background-color: rgba(255,255,255,0.04);
+}
+
+/* Code blocks */
+.slidev-code {
+  background-color: #252538 !important;
+}
+
+/* Section accent */
+.slidev-layout.section {
+  background: linear-gradient(135deg, #1A1B2E 60%, #252548);
+}
+
+.slidev-layout.section h1 {
+  font-size: 2.5rem;
+}
+
+/* Tag/badge style */
+.tag {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(240, 112, 96, 0.2);
+  color: var(--slidev-theme-primary);
+  border: 1px solid rgba(240, 112, 96, 0.4);
+}
+
+.tag-blue {
+  background: rgba(139, 175, 212, 0.2);
+  color: #8BAFD4;
+  border-color: rgba(139, 175, 212, 0.4);
+}
+
+/* Step number badges */
+.step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--slidev-theme-primary);
+  color: #1A1B2E;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-right: 0.5rem;
+}
