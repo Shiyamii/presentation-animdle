@@ -279,7 +279,7 @@ erDiagram
     int      totalWins
     mixed    winDistribution
   }
-  
+
   ANIMES {
     ObjectId _id
     mixed    images_webp
@@ -334,7 +334,7 @@ layout: section
 
 # Vue d'ensemble — Soumettre un Guess
 
-```mermaid {scale: 0.75}
+```mermaid {scale: 0.45}
 sequenceDiagram
     actor U as Utilisateur
     participant C as AutoComplete
@@ -342,15 +342,18 @@ sequenceDiagram
     participant API as /anime/guess
     participant R as Route Hono
     participant Sv as AnimeService
+    participant Rp as AnimeRepository
     participant DB as MongoDB
 
-    U->>C: Tape le nom d'un anime
+    U->>C: Tape le nom d'un anime et submit
     C->>S: submitGuess(animeId)
     S->>API: POST /anime/guess
     API->>R: Handler route
     R->>Sv: guess(animeId, goalId)
-    Sv->>DB: findById(animeId)
-    DB-->>Sv: Document Anime
+    Sv->>Rp: findById(animeId)
+    Rp->>DB: findById(animeId)
+    DB-->>Rp: Document Anime
+    Rp-->>Sv: Document Anime
     Sv-->>R: GuessResult (attributs comparés)
     R-->>API: JSON { result, correct }
     API-->>S: Mise à jour état
@@ -372,11 +375,55 @@ layoutClass: gap-6
 
 Saisie utilisateur → sélection d'un anime dans la liste
 
+```tsx {all|2-12|4-7|6|0}
+<Command>
+  <CommandPrimitive.Input
+    value={inputValue} [..]
+    onValueChange={(value: string) => {
+      setInputValue(value);
+      setIsOpen(value.length > 0);
+    }}
+    onFocus={() => {
+      if (inputValue.length > 0) {
+        setIsOpen(true);
+      }
+    }}
+  />
+ [...]
+</Command>
+```
+
 ::right::
 
-```tsx {all}
-// [CODE RÉEL ICI]
-// src/components/AutoComplete.tsx
+```tsx {0|all|3-28|5|6-25|7-24|16-23|11-16|15}
+<Command>  
+  [...]
+  {isOpen && (<div>
+    <CommandList>
+      {values.length === 0 ||isFilteringLoading ? ([...]) 
+        : (<CommandGroup>
+          {values.map((anime) => (
+            <CommandItem
+              key={anime.id}
+              value={anime.title}
+              onSelect={() => {
+                setInputValue('');
+                setSelectedValue(anime.id);
+                setIsOpen(false);
+                onSelect?.(anime.id);
+              }}>
+              <div>
+                <img src={anime.imageUrl} ... />
+                <div> 
+                  <p>{anime.title}</p> 
+                  <p>{anime.alias[0]}</p>
+                </div>
+              </div>
+            </CommandItem>))}
+          </CommandGroup>)}
+      </CommandList>
+  </div>)}
+</Command>
 ```
 
 <!--
@@ -390,22 +437,57 @@ layoutClass: gap-6
 
 # <span class="step">2</span> ViewModel + Store
 
-**ViewModel** : `useEndlessViewModel.ts` (ou Daily)
+**ViewModel** : `useDailyGuessingPageViewModel.ts`
 
-Appel API via `lib/guessing-utils.ts`
-
+```ts {all|2|3-7|0}
+ onAnimeSelect: async (animeId: string) => {
+      animeStore.initGuessListIfNeeded();
+      const guessResult = await makeGuessRequest({
+        animeId,
+        guessNumber: guessList.length + 1,
+        endpoint: '/api/animes/guess',
+      });
+      [... result process]
+    },
 ```
-submitGuess(animeId)
-  → POST /anime/guess
-  → update animeStore.guesses
+Guess list dans `animeStore.ts`:
+```ts {0|all|2-4|5-6|0}
+ initGuessListIfNeeded: () => {
+        const today = new Date().toDateString();
+        if (!useAnimeStore.getState().guessDate || 
+        useAnimeStore.getState().guessDate !== today) {
+          set({ guessList: [], guessDate: today, 
+          foundAnime: null, currentAnimeDate: null });
+        }
+      },
 ```
 
 ::right::
 
-```ts {all}
-// [CODE RÉEL ICI]
-// src/pages/endless/useEndlessViewModel.ts
-// ou src/lib/guessing-utils.ts
+Appel API via `lib/guessing-utils.ts`
+
+```ts {0|all|2-5|8-20}
+export async function makeGuessRequest({
+  animeId,
+  guessNumber,
+  endpoint,
+  queryParams,
+}: MakeGuessRequestParams): 
+Promise<GuessResultDTO | undefined> {
+  try {
+    const params = new URLSearchParams({
+      guessNumber: String(guessNumber),
+      ...(queryParams ?? {}),
+    });
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}
+      ${endpoint}/${animeId}?${params.toString()}`, {
+      method: 'POST',
+      headers: {...},
+    });
+      [... result process]
+  } catch (_error) {}
+}
 ```
 
 <!--
@@ -417,18 +499,31 @@ layout: two-cols
 layoutClass: gap-6
 ---
 
-# <span class="step">3</span> Route Hono
+# <span class="step">3</span> Controlleur Hono
 
-**Route** : `backend/src/routes/anime.ts`
+**Controlleur** : `backend/src/routes/anime.ts`
 
-Reçoit la requête, vérifie auth, délègue au service
+Reçoit la requête, vérifie auth, délègue au service (AnimeService)
+
+Avec BetterAuth, le décodage du token est géré automatiquement, sans besoin de code (middleware) supplémentaire.
 
 ::right::
 
-```ts {all}
-// [CODE RÉEL ICI]
-// backend/src/routes/anime.ts
-// handler POST /anime/guess
+```ts {all|2-4|5-7|8-9}
+router.post('/animes/guess/:id', async (c) => {
+  const id = c.req.param('id');
+  const guessNumber 
+    = parseInt(c.req.query('guessNumber') || '1', 10);
+  if (Number.isNaN(guessNumber) || guessNumber < 1) {
+    return c.json({error: 'Invalid guess number'}, 400);
+  }
+  const anime 
+    = await animeService.guessAnime(id, guessNumber);
+  if (!anime) {
+    return c.json({ error: 'Anime not found' }, 404);
+  }
+  return c.json(anime);
+});
 ```
 
 <!--
