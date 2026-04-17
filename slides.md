@@ -1,6 +1,6 @@
 ---
 theme: default
-title: Animdle — Présentation Projet
+title: Animedle — Présentation Projet
 colorSchema: dark
 transition: slide-left
 duration: 15min
@@ -430,7 +430,6 @@ Montrer: input contrôlé, debounce, filtrage de la liste, onClick → dispatch 
 -->
 
 ---
-layout: two-cols
 layoutClass: gap-6
 ---
 
@@ -449,131 +448,9 @@ layoutClass: gap-6
       [... result process]
     },
 ```
-Guess list dans `animeStore.ts`:
-```ts {0|all|2-4|5-6|0}
- initGuessListIfNeeded: () => {
-        const today = new Date().toDateString();
-        if (!useAnimeStore.getState().guessDate || 
-        useAnimeStore.getState().guessDate !== today) {
-          set({ guessList: [], guessDate: today, 
-          foundAnime: null, currentAnimeDate: null });
-        }
-      },
-```
-
-::right::
-
-Appel API via `lib/guessing-utils.ts`
-
-```ts {0|all|2-5|8-20}
-export async function makeGuessRequest({
-  animeId,
-  guessNumber,
-  endpoint,
-  queryParams,
-}: MakeGuessRequestParams): 
-Promise<GuessResultDTO | undefined> {
-  try {
-    const params = new URLSearchParams({
-      guessNumber: String(guessNumber),
-      ...(queryParams ?? {}),
-    });
-    const response = await fetch(
-      `${import.meta.env.VITE_API_URL}
-      ${endpoint}/${animeId}?${params.toString()}`, {
-      method: 'POST',
-      headers: {...},
-    });
-      [... result process]
-  } catch (_error) {}
-}
-```
 
 <!--
 Zustand : action simple, pas de dispatch/action creator. Le store notifie les composants abonnés.
--->
-
----
-layout: two-cols
-layoutClass: gap-6
----
-
-# <span class="step">3</span> Controlleur Hono
-
-**Controlleur** : `backend/src/routes/anime.ts`
-
-Reçoit la requête, vérifie auth, délègue au service (AnimeService)
-
-Avec BetterAuth, le décodage du token est géré automatiquement, sans besoin de code (middleware) supplémentaire.
-
-::right::
-
-```ts {all|2-4|5-7|8-9}
-router.post('/animes/guess/:id', async (c) => {
-  const id = c.req.param('id');
-  const guessNumber 
-    = parseInt(c.req.query('guessNumber') || '1', 10);
-  if (Number.isNaN(guessNumber) || guessNumber < 1) {
-    return c.json({error: 'Invalid guess number'}, 400);
-  }
-  const anime 
-    = await animeService.guessAnime(id, guessNumber);
-  if (!anime) {
-    return c.json({ error: 'Anime not found' }, 404);
-  }
-  return c.json(anime);
-});
-```
-
-<!--
-Hono : middleware auth, validation du body (animeId), puis appel AnimeService.
--->
-
----
-layout: two-cols
-layoutClass: gap-6
----
-
-# <span class="step">4</span> AnimeService
-
-**Service** : `backend/src/services/AnimeService.ts`
-
-Logique métier : compare les attributs de l'anime guessé avec le goal
-
-::right::
-
-```ts {all}
-// [CODE RÉEL ICI]
-// backend/src/services/AnimeService.ts
-// méthode guess(animeId, goalAnimeId)
-```
-
-<!--
-C'est ici que la logique Wordle se passe : chaque attribut est comparé (exact / proche / faux).
-Le "goal" (anime du jour) est chargé depuis CurrentAnimeRepository (mis en cache en mémoire).
--->
-
----
-layout: two-cols
-layoutClass: gap-6
----
-
-# <span class="step">5</span> Repository → MongoDB
-
-**Repository** : `backend/src/repositories/AnimeRepository.ts`
-
-Requête MongoDB, retourne le document complet
-
-::right::
-
-```ts {all}
-// [CODE RÉEL ICI]
-// backend/src/repositories/AnimeRepository.ts
-// méthode findById(id)
-```
-
-<!--
-Simple wrapper Mongo. Le service reçoit l'objet Anime complet et construit le GuessResult.
 -->
 
 ---
@@ -598,12 +475,12 @@ layout: center
 layout: end
 ---
 
-# Merci
+# Merci pour votre écoute
 
-<div class="text-lg opacity-70 mt-4">Questions ?</div>
+<div class="text-lg opacity-70 mt-4">Avez vous des questions ?</div>
 
 <div class="mt-8 flex justify-center gap-4">
-  <span class="tag">Animdle</span>
+  <span class="tag">Animedle</span>
   <span class="tag tag-blue">MIAGE 2025</span>
 </div>
 
