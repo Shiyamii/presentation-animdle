@@ -475,12 +475,12 @@ layout: center
 layout: end
 ---
 
-# Merci
+# Merci pour votre écoute
 
-<div class="text-lg opacity-70 mt-4">Questions ?</div>
+<div class="text-lg opacity-70 mt-4">Avez vous des questions ?</div>
 
 <div class="mt-8 flex justify-center gap-4">
-  <span class="tag">Animdle</span>
+  <span class="tag">Animedle</span>
   <span class="tag tag-blue">MIAGE 2025</span>
 </div>
 
