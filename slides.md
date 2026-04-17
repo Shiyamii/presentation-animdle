@@ -102,7 +102,7 @@ layout: two-cols-header
 ### En commun
 
 <div class="grid grid-cols-2 gap-2 mb-12">
-  <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag tag-orange">Bun</span></span> Runtime JS performant</div>
+  <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag tag-orange">Bun</span></span> Runtime JS</div>
   <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag tag-orange">BetterAuth</span></span> Auth email/password</div>
   <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag tag-orange">Biome</span></span> Formatage et de linting</div>
   <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag tag-orange">Husky</span></span> Outil de gestion de hooks Git</div>
@@ -114,7 +114,7 @@ layout: two-cols-header
 
 <div class="mt-3 space-y-2">
   <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag">React (router & i18n)</span></span> Bibliothèque front-end</div>
-  <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag">Zustand</span></span> State management léger</div>
+  <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag">Zustand</span></span> State management</div>
   <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag">ShadeCN & TweakCN</span></span> Composants UI</div>
   <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag">Tailwind v4</span></span> Styling utility-first</div>
 </div>
@@ -124,12 +124,11 @@ layout: two-cols-header
 ### Backend
 
 <div class="mt-3 space-y-2">
-  <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag tag-blue">Hono</span></span> Framework HTTP typé</div>
+  <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag tag-blue">Hono</span></span> Framework HTTP</div>
   <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag tag-blue">Mongoose</span></span> ODM pour MongoDB</div>
   <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag tag-blue">BetterAuth</span></span> Auth email/password</div>
   <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag tag-blue">node-cron</span></span> Planification de tâches</div>
 </div>
-
 
 <!--
 Justifier Bun + Hono: performance native, TypeScript first-class, API Web standards.
@@ -605,7 +604,7 @@ layout: end
 
 <div class="mt-8 flex justify-center gap-4">
   <span class="tag">Animdle</span>
-  <span class="tag-blue">MIAGE 2025</span>
+  <span class="tag tag-blue">MIAGE 2025</span>
 </div>
 
 <!--
