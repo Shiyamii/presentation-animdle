@@ -128,6 +128,7 @@ layout: two-cols-header
   <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag tag-blue">Mongoose</span></span> ODM pour MongoDB</div>
   <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag tag-blue">BetterAuth</span></span> Auth email/password</div>
   <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag tag-blue">node-cron</span></span> Planification de tâches</div>
+  <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag tag-blue">Bun/WS</span></span> Gestion WebSocket</div>
 </div>
 
 <!--
@@ -336,27 +337,26 @@ layout: section
 ```mermaid {scale: 0.45}
 sequenceDiagram
     actor U as Utilisateur
-    participant C as AutoComplete
-    participant S as animeStore
-    participant API as /anime/guess
-    participant R as Route Hono
-    participant Sv as AnimeService
-    participant Rp as AnimeRepository
-    participant DB as MongoDB
-
-    U->>C: Tape le nom d'un anime et submit
-    C->>S: submitGuess(animeId)
-    S->>API: POST /anime/guess
-    API->>R: Handler route
-    R->>Sv: guess(animeId, goalId)
-    Sv->>Rp: findById(animeId)
-    Rp->>DB: findById(animeId)
-    DB-->>Rp: Document Anime
-    Rp-->>Sv: Document Anime
-    Sv-->>R: GuessResult (attributs comparés)
-    R-->>API: JSON { result, correct }
-    API-->>S: Mise à jour état
-    S-->>C: Affiche ligne résultat
+    participant V as View
+    participant VM as ViewModel
+    participant M as Model (store)
+    participant B as Backend
+    participant DB@{ "type" : "database" } as MongoDB
+    U->>V: Tape le nom d'un anime
+    V->>VM: onInput(input)
+    VM->>M: Récuperer anime/guess list
+    M-->>VM: Retourne anime/guess list
+    VM-->>V: Affiche les animes possibles
+    U->>V: Choisis un anime
+    V->>VM: onSubmit(input)
+    VM->>B: POST /anime/guess
+    B->>DB : Get Anime
+    DB-->>B: Document Anime
+    B->>B : Compare le guess à la cible
+    B-->>VM: Retourne GuessResult
+    VM->>VM: Verifie si victoire
+    VM->>M: Save guess dans guess list
+    VM-->>V: Affiche ligne résultat
 ```
 
 <!--
