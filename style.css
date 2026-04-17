@@ -83,4 +83,6 @@
   font-weight: 700;
   font-size: 0.9rem;
   margin-right: 0.5rem;
+  scale: 1.5;
+  translate: 0 -8px;
 }

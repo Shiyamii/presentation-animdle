@@ -368,7 +368,7 @@ layout: two-cols
 layoutClass: gap-6
 ---
 
-# <span class="step">1</span> Composant — AutoComplete
+# <span class="step">1</span> View
 
 **View** : `src/components/AutoComplete.tsx`
 
@@ -433,11 +433,11 @@ Montrer: input contrôlé, debounce, filtrage de la liste, onClick → dispatch 
 layoutClass: gap-6
 ---
 
-# <span class="step">2</span> ViewModel + Store
+# <span class="step">2</span> ViewModel + Model
 
 **ViewModel** : `useDailyGuessingViewModel.ts`
 
-```ts {all|1-2|4-6|8-12|15-}{lines:true}
+```ts {all|1-24-6|8-12|15-}{lines:true}
   const [fuse, setFuse] = useState<Fuse<AnimeItemDTO>>(createFuse(animeStore.animeList));
   const [filtredAnimeList, setFiltredAnimeList] = useState<AnimeItemDTO[]>([]);
 
@@ -471,7 +471,7 @@ layout: center
 ---
 
 
-# Code — guessAnime
+# Code - guessAnime
 
 ```ts {all|2-3|4-7|8-10|11-13|14}
 public async guessAnime(id: string, guessNumber: number): Promise<GuessResultDTO> {
@@ -509,4 +509,3 @@ Ouvrir la discussion. Points qu'on peut approfondir :
 - Admin dashboard
 - Difficultés rencontrées
 -->
-	
