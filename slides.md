@@ -435,18 +435,31 @@ layoutClass: gap-6
 
 # <span class="step">2</span> ViewModel + Store
 
-**ViewModel** : `useDailyGuessingPageViewModel.ts`
+**ViewModel** : `useDailyGuessingViewModel.ts`
 
-```ts {all|2|3-7|0}
- onAnimeSelect: async (animeId: string) => {
+```ts {all|1-2|4-6|8-12|15-}{lines:true}
+  const [fuse, setFuse] = useState<Fuse<AnimeItemDTO>>(createFuse(animeStore.animeList));
+  const [filtredAnimeList, setFiltredAnimeList] = useState<AnimeItemDTO[]>([]);
+
+  useEffect(() => {
+    setFuse(createFuse(makeGuessableList(animeStore.animeList, guessList)));
+  }, [animeStore.animeList, guessList]);
+
+  useEffect(() => {
+    setIsLoading(true);
+    setFiltredAnimeList(filterAnimeList(fuse, inputValue));
+    setIsLoading(false);
+  }, [inputValue, fuse]);
+
+
+    async function onAnimeSelect(animeId: string) {
       animeStore.initGuessListIfNeeded();
       const guessResult = await makeGuessRequest({
         animeId,
         guessNumber: guessList.length + 1,
         endpoint: '/api/animes/guess',
       });
-      [... result process]
-    },
+   }
 ```
 
 <!--
