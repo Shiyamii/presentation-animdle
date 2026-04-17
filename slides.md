@@ -22,6 +22,10 @@ Wordle rencontre MyAnimeList</div>
   <span class="tag">WebSocket</span>
 </div>
 
+<div class="mt-8 text-sm opacity-60">
+  Tamas PALOTAS · Samy BEN DHIAB · Titouan LACOMBE-FABRE
+</div>
+
 <div class="abs-br m-8 text-sm opacity-50">
   MIAGE — Projet React - 2026
 </div>
