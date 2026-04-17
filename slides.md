@@ -336,27 +336,27 @@ layout: section
 
 ```mermaid {scale: 0.45}
 sequenceDiagram
-    actor U as Utilisateur
-    participant V as View
-    participant VM as ViewModel
-    participant M as Model (store)
-    participant B as Backend
-    participant DB@{ "type" : "database" } as MongoDB
-    U->>V: Tape le nom d'un anime
-    V->>VM: onInput(input)
-    VM->>M: Récuperer anime/guess list
-    M-->>VM: Retourne anime/guess list
-    VM-->>V: Affiche les animes possibles
-    U->>V: Choisis un anime
-    V->>VM: onSubmit(input)
-    VM->>B: POST /anime/guess
-    B->>DB : Get Anime
-    DB-->>B: Document Anime
-    B->>B : Compare le guess à la cible
-    B-->>VM: Retourne GuessResult
-    VM->>VM: Verifie si victoire
-    VM->>M: Save guess dans guess list
-    VM-->>V: Affiche ligne résultat
+  actor U as User
+  participant V as View
+  participant VM as ViewModel
+  participant M as Model (store)
+  participant B as Backend
+  participant DB@{ "type" : "database" } as MongoDB
+  U->>V: Types the name of an anime
+  V->>VM: onInput(input)
+  VM->>M: Retrieve anime/guess list
+  M-->>VM: Returns anime/guess list
+  VM-->>V: Display possible animes
+  U->>V: Selects an anime
+  V->>VM: onSubmit(input)
+  VM->>B: POST /anime/guess
+  B->>DB : Get Anime
+  DB-->>B: Anime Document
+  B->>B : Compare guess to target
+  B-->>VM: Returns GuessResult
+  VM->>VM: Check for victory
+  VM->>M: Save guess in guess list
+  VM-->>V: Display result row
 ```
 
 <!--
@@ -457,19 +457,24 @@ Zustand : action simple, pas de dispatch/action creator. Le store notifie les co
 layout: center
 ---
 
-<div class="text-center">
-  <div class="text-7xl mb-4">✅</div>
-  <div class="text-2xl font-bold">Résultat retourné</div>
-  <div class="text-lg opacity-70 mt-3 mb-8">Chaque attribut coloré : vert / orange / rouge</div>
 
-  <div class="grid grid-cols-5 gap-2 max-w-lg mx-auto text-sm">
-    <div class="p-2 rounded bg-green-800/40 border border-green-500/50">Genre ✓</div>
-    <div class="p-2 rounded bg-red-800/40 border border-red-500/50">Type ✗</div>
-    <div class="p-2 rounded bg-orange-800/40 border border-orange-500/50">Année ≈</div>
-    <div class="p-2 rounded bg-green-800/40 border border-green-500/50">Studio ✓</div>
-    <div class="p-2 rounded bg-red-800/40 border border-red-500/50">Éps ✗</div>
-  </div>
-</div>
+# Code — guessAnime
+
+```ts {all|2-3|4-7|8-10|11-13|14}
+public async guessAnime(id: string, guessNumber: number): Promise<GuessResultDTO> {
+  const currentAnime = await this.getCurrentAnime();
+  const guessedAnime = await this.repository.findById(id);
+  if (!(currentAnime && guessedAnime)) {
+    throw new Error('Current anime or guessed anime not found');
+  }
+  const result = this.compareAnimes(currentAnime, guessedAnime, guessNumber);
+  await this.currentAnimeRepository.recordGuess(id);
+  if (result.isCorrect) {
+    await this.currentAnimeRepository.recordWin(guessNumber);
+  }
+  return result;
+}
+```
 
 ---
 layout: end
@@ -491,3 +496,4 @@ Ouvrir la discussion. Points qu'on peut approfondir :
 - Admin dashboard
 - Difficultés rencontrées
 -->
+	
