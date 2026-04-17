@@ -467,13 +467,12 @@ Zustand : action simple, pas de dispatch/action creator. Le store notifie les co
 -->
 
 ---
-layout: center
+layoutClass: gap-6
 ---
 
+# <span class="step">2</span> Code - guessAnime
 
-# Code - guessAnime
-
-```ts {all|2-3|4-7|8-10|11-13|14}
+```ts {all|2-3|4-7|8-10|all}
 public async guessAnime(id: string, guessNumber: number): Promise<GuessResultDTO> {
   const currentAnime = await this.getCurrentAnime();
   const guessedAnime = await this.repository.findById(id);
