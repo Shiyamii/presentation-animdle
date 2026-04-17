@@ -1,6 +1,6 @@
 ---
 theme: default
-title: Animdle — Présentation Projet
+title: Animedle — Présentation Projet
 colorSchema: dark
 transition: slide-left
 duration: 15min
