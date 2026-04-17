@@ -10,9 +10,10 @@ fonts:
 highlighter: shiki
 ---
 
-# Animdle
+# Animedle
 
-<div class="text-xl mt-2 opacity-70">Jeu de devinette d'anime — Wordle rencontre MyAnimeList</div>
+<div class="text-xl mt-2 opacity-70">
+Wordle rencontre MyAnimeList</div>
 
 <div class="mt-12 flex gap-3">
   <span class="tag">React 19</span>
@@ -22,7 +23,7 @@ highlighter: shiki
 </div>
 
 <div class="abs-br m-8 text-sm opacity-50">
-  MIAGE — Projet Web · 2025
+  MIAGE — Projet React - 2026
 </div>
 
 <!--
@@ -126,7 +127,6 @@ layout: two-cols-header
 <div class="mt-3 space-y-2">
   <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag tag-blue">Hono</span></span> Framework HTTP</div>
   <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag tag-blue">Mongoose</span></span> ODM pour MongoDB</div>
-  <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag tag-blue">BetterAuth</span></span> Auth email/password</div>
   <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag tag-blue">node-cron</span></span> Planification de tâches</div>
   <div class="flex items-center gap-2"><span class="w-[150px]"><span class="tag tag-blue">Bun/WS</span></span> Gestion WebSocket</div>
 </div>
@@ -350,8 +350,8 @@ sequenceDiagram
   U->>V: Selects an anime
   V->>VM: onSubmit(input)
   VM->>B: POST /anime/guess
-  B->>DB : Get Anime
-  DB-->>B: Anime Document
+  B->>DB : Get Animes
+  DB-->>B: Anime Documents
   B->>B : Compare guess to target
   B-->>VM: Returns GuessResult
   VM->>VM: Check for victory
@@ -364,64 +364,36 @@ On va détailler chaque étape dans les slides suivantes avec le vrai code du pr
 -->
 
 ---
-layout: two-cols
 layoutClass: gap-6
 ---
 
 # <span class="step">1</span> View
 
-**View** : `src/components/AutoComplete.tsx`
+**View** : `AutoComplete.tsx`
 
-Saisie utilisateur → sélection d'un anime dans la liste
-
-```tsx {all|2-12|4-7|6|0}
-<Command>
-  <CommandPrimitive.Input
-    value={inputValue} [..]
-    onValueChange={(value: string) => {
-      setInputValue(value);
-      setIsOpen(value.length > 0);
-    }}
-    onFocus={() => {
-      if (inputValue.length > 0) {
-        setIsOpen(true);
-      }
-    }}
-  />
- [...]
-</Command>
-```
-
-::right::
-
-```tsx {0|all|3-28|5|6-25|7-24|16-23|11-16|15}
-<Command>  
-  [...]
-  {isOpen && (<div>
-    <CommandList>
-      {values.length === 0 ||isFilteringLoading ? ([...]) 
-        : (<CommandGroup>
-          {values.map((anime) => (
-            <CommandItem
-              key={anime.id}
-              value={anime.title}
-              onSelect={() => {
-                setInputValue('');
-                setSelectedValue(anime.id);
-                setIsOpen(false);
-                onSelect?.(anime.id);
-              }}>
-              <div>
-                <img src={anime.imageUrl} ... />
-                <div> 
-                  <p>{anime.title}</p> 
-                  <p>{anime.alias[0]}</p>
-                </div>
-              </div>
-            </CommandItem>))}
-          </CommandGroup>)}
-      </CommandList>
-  </div>)}
+```tsx {all|1,23|2-6|7-9,21-22|10-14,19|15-18}{lines:true}
+<Command ref={wrapperRef} className="relative w-full overflow-visible">
+      <CommandPrimitive.Input
+        onValueChange={(value: string) => {
+          setInputValue(value);
+        }}
+      />
+      {isOpen && (
+          <CommandList>
+                {values.map((anime) => (
+                  <CommandItem
+                    value={anime.title}
+                    onSelect={() => {
+                      setSelectedValue(anime.id);
+                    }}>
+                      <div className="flex flex-col">
+                        <p className="text-lg">{anime.title}</p>
+                        <p className="text-muted-foreground text-sm">{anime.alias[0]}</p>
+                      </div>
+                  </CommandItem>
+                ))}
+          </CommandList>
+      )}
 </Command>
 ```
 
@@ -437,7 +409,7 @@ layoutClass: gap-6
 
 **ViewModel** : `useDailyGuessingViewModel.ts`
 
-```ts {all|1-24-6|8-12|15-}{lines:true}
+```ts {all|1-2|4-6,1|8-12,2|15-}{lines:true}
   const [fuse, setFuse] = useState<Fuse<AnimeItemDTO>>(createFuse(animeStore.animeList));
   const [filtredAnimeList, setFiltredAnimeList] = useState<AnimeItemDTO[]>([]);
 
@@ -470,20 +442,25 @@ Zustand : action simple, pas de dispatch/action creator. Le store notifie les co
 layoutClass: gap-6
 ---
 
-# <span class="step">2</span> Code - guessAnime
+# <span class="step">3</span> Backend
 
-```ts {all|2-3|4-7|8-10|all}
-public async guessAnime(id: string, guessNumber: number): Promise<GuessResultDTO> {
+**Backend** : `animeService.ts`
+```ts {all|2-3|5-9|11-13,16|all}{lines:true}
+async function guessAnime(id: string, guessNumber: number): Promise<GuessResultDTO> {
   const currentAnime = await this.getCurrentAnime();
   const guessedAnime = await this.repository.findById(id);
+
   if (!(currentAnime && guessedAnime)) {
     throw new Error('Current anime or guessed anime not found');
   }
+
   const result = this.compareAnimes(currentAnime, guessedAnime, guessNumber);
+
   await this.currentAnimeRepository.recordGuess(id);
   if (result.isCorrect) {
     await this.currentAnimeRepository.recordWin(guessNumber);
   }
+
   return result;
 }
 ```
@@ -498,7 +475,7 @@ layout: end
 
 <div class="mt-8 flex justify-center gap-4">
   <span class="tag">Animedle</span>
-  <span class="tag tag-blue">MIAGE 2025</span>
+  <span class="tag tag-blue">MIAGE 2026</span>
 </div>
 
 <!--
